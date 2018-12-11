@@ -45,6 +45,11 @@ function PopDom(OnChanged)
 	this.OnChanged = OnChanged;
 	
 	
+	this.GetElement = function(Name)
+	{
+		return this.Elements[Name];
+	}
+	
 	//	get accumulated rect
 	this.GetElementRect = function()
 	{
