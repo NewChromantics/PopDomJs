@@ -76,6 +76,28 @@ function TRect(x,y,w,h)
 
 
 
+var FragShader_BasicBackground = `
+precision highp float;
+varying vec2 uv;
+const vec3 ColourA = vec3( 221, 238, 238 );
+const vec3 ColourB = vec3( 238, 238, 238 );
+const float SquareSize = 20.0;
+uniform vec4 BackgroundSize;
+
+void main()
+{
+	float x = mod( uv.x * BackgroundSize.z, SquareSize);
+	float y = mod( uv.y * BackgroundSize.w, SquareSize);
+	bool xi = x < (SquareSize/2.0);
+	bool yi = y < (SquareSize/2.0);
+	gl_FragColor.xyz = (xi==yi) ? ColourA : ColourB;
+	gl_FragColor.xyz /= 255.0;
+	
+	//gl_FragColor.xyz = ColourA / 255.0;
+	gl_FragColor.w = 1.0;
+}
+`;
+
 
 function PopDom(OnChanged,GetPixelRect)
 {
@@ -87,8 +109,19 @@ function PopDom(OnChanged,GetPixelRect)
 	this.LockedElement = null;		//	mousedown started on this element
 	this.GetPixelRect = GetPixelRect || function()	{	return new TRect(0,0,100,100);	};
 	
+	this.BackgroundElement = {};
+	this.BackgroundElement.Rect = new TRect(0,0,1,1);
+	this.BackgroundElement.IsBackground = true;	//	dont include in accumulate
+
+	this.SetBackgroundUniforms = function(Shader,Geo)
+	{
+		Shader.SetUniform('BackgroundSize', this.GetPixelRect().GetArray() );
+	}
+
 	this.GetElement = function(Name)
 	{
+		if ( Name === null )
+			return this.BackgroundElement;
 		return this.Elements[Name];
 	}
 	
@@ -98,14 +131,17 @@ function PopDom(OnChanged,GetPixelRect)
 		let Rect = new TRect(0,0,0,0);
 		let Accumulate = function(Element)
 		{
-			Rect.Accumulate( Element.Rect );
+			if ( Element.IsBackground !== true )
+				Rect.Accumulate( Element.Rect );
 		}
-		this.EnumElements( Accumulate );
+		this.EnumElements( Accumulate, false );
 		return Rect;
 	}
 	
 	this.EnumElements = function(OnEnum)
 	{
+		OnEnum( this.BackgroundElement, null );
+		
 		//	todo: sort by Z? or let renderer deal with occlusion & effeciency
 		let ElementNames = Object.keys(this.Elements);
 		let OnEnumKey = function(Key)
@@ -126,15 +162,6 @@ function PopDom(OnChanged,GetPixelRect)
 		return this.Elements[Name];
 	}
 	
-	//	todo: make a proper/generic "background" control?
-	this.BackgroundElement = {};
-	this.BackgroundElement.Rect = new TRect(0,0,1,1);
-	this.BackgroundElement.Control = {};
-	this.BackgroundElement.Control.OnClick = function(uv,FirstClick,Button){}
-	this.BackgroundElement.Control.OnHover = function(uv){}
-	this.BackgroundElement.Control.OnScroll = function(ScrollHv,uv){}
-	
-
 	this.GetElementAt = function(u,v,UseLocked)
 	{
 		UseLocked = (UseLocked!==false);	//	default to true
@@ -191,5 +218,8 @@ function PopDom(OnChanged,GetPixelRect)
 	}
 
 	
+	TFragGui.CurrentDom = this;
+	let bec = new TShaderBox( null, FragShader_BasicBackground, this.SetBackgroundUniforms.bind(this) );
+
 }
 
