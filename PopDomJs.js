@@ -3,6 +3,13 @@ Math.Inside01 = function(x,y)
 	return ( x>=0 && x<=1 && y>=0 && y<=1 );
 }
 
+Math.Lerp = function(Min,Max,Time)
+{
+	return Min + ( Time * (Max-Min) );
+};
+
+
+
 //	uses PopMath for Rect(x,y,w,h)
 function TRect(x,y,w,h)
 {
@@ -53,12 +60,24 @@ function TRect(x,y,w,h)
 		let v = Math.Range( this.GetTop(), this.GetBottom(), Uv.y );
 		return new float2(u,v);
 	}
+	
+	this.ScaleTo = function(Parent)
+	{
+		let Normalised = this;
+		let l = Math.Lerp( Parent.GetLeft(), Parent.GetRight(), Normalised.GetLeft() );
+		let r = Math.Lerp( Parent.GetLeft(), Parent.GetRight(), Normalised.GetRight() );
+		let t = Math.Lerp( Parent.GetTop(), Parent.GetBottom(), Normalised.GetTop() );
+		let b = Math.Lerp( Parent.GetTop(), Parent.GetBottom(), Normalised.GetBottom() );
+		let w = r-l;
+		let h = b-t;
+		return new TRect( l, t, w, h );
+	}
 }
 
 
 
 
-function PopDom(OnChanged)
+function PopDom(OnChanged,GetPixelRect)
 {
 	OnChanged = OnChanged || function(){};
 	
@@ -66,7 +85,7 @@ function PopDom(OnChanged)
 	this.Elements = [];
 	this.OnChanged = OnChanged;
 	this.LockedElement = null;		//	mousedown started on this element
-	
+	this.GetPixelRect = GetPixelRect || function()	{	return new TRect(0,0,100,100);	};
 	
 	this.GetElement = function(Name)
 	{
@@ -130,7 +149,7 @@ function PopDom(OnChanged)
 				return;
 			ResultElement = {};
 			ResultElement.Element = Element;
-			ResultElement.LocalUv = LocalUv;
+			ResultElement.LocalUv = [LocalUv.x,LocalUv.y];
 		}
 		
 		if ( UseLocked && this.LockedElement )
