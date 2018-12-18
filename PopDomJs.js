@@ -203,25 +203,33 @@ function PopDom(OnChanged,GetPixelRect)
 	}
 	
 	
-	this.OnMouseDown = function(u,v)
+	this.OnMouseDown = function(x,y,ButtonIndex)
 	{
+		let WindowRect = GetPixelRect();
+		let u = x / WindowRect.w;
+		let v = y / WindowRect.h;
+	
 		this.LockedElement = null;
 		let MatchElement = this.GetElementAt( u, v );
 		this.LockedElement = MatchElement.Element;
-		MatchElement.Element.Control.OnClick( MatchElement.LocalUv, true, PopFragGui.ButtonLeft );
+		MatchElement.Element.Control.OnClick( MatchElement.LocalUv, true, ButtonIndex );
 	}
 
-	this.OnMouseUp = function(u,v)
+	this.OnMouseUp = function(x,y,ButtonIndex)
 	{
 		this.LockedElement = null;
 	}
 
-	this.OnMouseMove = function(u,v)
+	this.OnMouseMove = function(x,y,ButtonIndex)
 	{
+		let WindowRect = GetPixelRect();
+		let u = x / WindowRect.w;
+		let v = y / WindowRect.h;
+		
 		//	mouse down
 		let MatchElement = this.GetElementAt( u, v );
 		if ( this.LockedElement )
-			MatchElement.Element.Control.OnClick( MatchElement.LocalUv, false, PopFragGui.ButtonLeft );
+			MatchElement.Element.Control.OnClick( MatchElement.LocalUv, false, ButtonIndex );
 		else
 			MatchElement.Element.Control.OnHover( MatchElement.LocalUv );
 	}
