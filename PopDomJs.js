@@ -13,6 +13,14 @@ Math.Lerp = function(Min,Max,Time)
 //	uses PopMath for Rect(x,y,w,h)
 function TRect(x,y,w,h)
 {
+	if ( x instanceof TRect )
+	{
+		h = x.h;
+		w = x.w;
+		y = x.y;
+		x = x.x;
+	}
+	
 	this.x = x;
 	this.y = y;
 	this.w = w;
