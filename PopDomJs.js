@@ -79,8 +79,9 @@ function TRect(x,y,w,h)
 var FragShader_BasicBackground = `
 precision highp float;
 varying vec2 uv;
-const vec3 ColourA = vec3( 221, 238, 238 );
-const vec3 ColourB = vec3( 238, 238, 238 );
+
+const vec3 ColourA = vec3(218, 234, 237);
+const vec3 ColourB = vec3(176, 221, 229);
 const float SquareSize = 20.0;
 uniform vec4 BackgroundSize;
 
