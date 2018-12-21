@@ -140,6 +140,7 @@ function PopDom(OnChanged,GetPixelRect)
 	this.BackgroundElement = {};
 	this.BackgroundElement.Rect = new TRect(0,0,1,1);
 	this.BackgroundElement.IsBackground = true;	//	dont include in accumulate
+	this.BackgroundElement.IsStatic = true;
 
 	this.SetBackgroundUniforms = function(Shader,Geo)
 	{
@@ -191,9 +192,10 @@ function PopDom(OnChanged,GetPixelRect)
 		return this.Elements[Name];
 	}
 	
-	this.GetElementAt = function(u,v,UseLocked)
+	this.GetElementAt = function(u,v,UseLocked,IncludeStatic)
 	{
 		UseLocked = (UseLocked!==false);	//	default to true
+		IncludeStatic = (IncludeStatic!==false);	//	default to true
 		let ResultElement = null;
 		let uv = new float2(u,v);
 		
@@ -202,6 +204,8 @@ function PopDom(OnChanged,GetPixelRect)
 			Force = (Force===true);
 			let LocalUv = Element.Rect.GetLocalUv( uv );
 			if ( !Force && !Math.Inside01( LocalUv.x, LocalUv.y ) )
+				return;
+			if ( !IncludeStatic && Element.IsStatic === true )
 				return;
 			ResultElement = {};
 			ResultElement.Element = Element;
@@ -230,7 +234,8 @@ function PopDom(OnChanged,GetPixelRect)
 		let v = y / WindowRect.h;
 	
 		this.LockedElement = null;
-		let MatchElement = this.GetElementAt( u, v );
+		let IncludeStatic = false;
+		let MatchElement = this.GetElementAt( u, v, true, IncludeStatic );
 		this.LockedElement = MatchElement.Element;
 		MatchElement.Element.Control.OnClick( MatchElement.LocalUv, true, ButtonIndex );
 	}
@@ -247,7 +252,8 @@ function PopDom(OnChanged,GetPixelRect)
 		let v = y / WindowRect.h;
 		
 		//	mouse down
-		let MatchElement = this.GetElementAt( u, v );
+		let IncludeStatic = false;
+		let MatchElement = this.GetElementAt( u, v, true, IncludeStatic );
 		if ( this.LockedElement )
 			MatchElement.Element.Control.OnClick( MatchElement.LocalUv, false, ButtonIndex );
 		else
