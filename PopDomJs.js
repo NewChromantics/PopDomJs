@@ -21,6 +21,14 @@ function TRect(x,y,w,h)
 		x = x.x;
 	}
 	
+	if ( Array.isArray(x) )
+	{
+		h = x[3];
+		w = x[2];
+		y = x[1];
+		x = x[0];
+	}
+	
 	this.x = x;
 	this.y = y;
 	this.w = w;
@@ -80,6 +88,17 @@ function TRect(x,y,w,h)
 		let h = b-t;
 		return new TRect( l, t, w, h );
 	}
+	
+	this.GetMultiplied = function(ScalarRect)
+	{
+		ScalarRect = new TRect( Array.from(arguments) );
+		ScalarRect.x *= this.x;
+		ScalarRect.y *= this.y;
+		ScalarRect.w *= this.w;
+		ScalarRect.h *= this.h;
+		return ScalarRect;
+	}
+	
 }
 
 
