@@ -166,7 +166,8 @@ function PopDom(OnChanged,GetPixelRect)
 			throw "Duplicate element name " + Name;
 		
 		this.Elements[Name] = {};
-		this.Elements[Name].Rect = Rect;
+		//	gr: copy the rect, as objects/arrays are references and this can be messed up externally if reused in caller etc
+		this.Elements[Name].Rect = new TRect(Rect);
 		this.OnChanged();
 		return this.Elements[Name];
 	}
