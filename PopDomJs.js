@@ -215,7 +215,7 @@ function PopDom(OnChanged,GetPixelRect)
 		
 		if ( UseLocked && this.LockedElement )
 		{
-			MatchElement( this.LockedElement, true );
+			MatchElement( this.LockedElement.Element, true );
 		}
 		else
 		{
@@ -237,18 +237,23 @@ function PopDom(OnChanged,GetPixelRect)
 		this.LockedElement = null;
 		let IncludeStatic = false;
 		let MatchElement = this.GetElementAt( u, v, true, IncludeStatic );
-		this.LockedElement = MatchElement.Element;
+		this.LockedElement = MatchElement;
 		MatchElement.Element.Control.OnClick( MatchElement.LocalUv, true, ButtonIndex );
 	}
 
 	this.OnMouseUp = function(x,y,ButtonIndex)
 	{
+		let LastElement = this.LockedElement;
 		this.LockedElement = null;
+	
 		//	emulate a hover with the button not-down
-		this.OnMouseMove(x,y,ButtonIndex);
+		if ( LastElement )
+		{
+			this.OnMouseMove(x,y,ButtonIndex,LastElement);
+		}
 	}
 
-	this.OnMouseMove = function(x,y,ButtonIndex)
+	this.OnMouseMove = function(x,y,ButtonIndex,ForcedElement)
 	{
 		let WindowRect = GetPixelRect();
 		let u = x / WindowRect.w;
@@ -256,13 +261,23 @@ function PopDom(OnChanged,GetPixelRect)
 		
 		//	mouse down
 		let IncludeStatic = false;
-		let MatchElement = this.GetElementAt( u, v, true, IncludeStatic );
-		if ( !MatchElement || !MatchElement.Control )
+		let MatchElement = ForcedElement || this.GetElementAt( u, v, true, IncludeStatic );
+		if ( !MatchElement || !MatchElement.Element.Control )
+		{
+			//Debug("Skipped onmousemove, forced="+ForcedElement);
 			return;
+		}
+
 		if ( this.LockedElement )
+		{
+			if ( this.LockedElement != MatchElement )
+				Debug("Error: Locked is not matched: " + this.LockedElement + "!=" + MatchElement );
 			MatchElement.Element.Control.OnClick( MatchElement.LocalUv, false, ButtonIndex );
+		}
 		else
+		{
 			MatchElement.Element.Control.OnHover( MatchElement.LocalUv );
+		}
 	}
 
 	
