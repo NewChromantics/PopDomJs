@@ -257,7 +257,7 @@ function PopDom(OnChanged,GetPixelRect)
 		//	mouse down
 		let IncludeStatic = false;
 		let MatchElement = this.GetElementAt( u, v, true, IncludeStatic );
-		if ( !MatchElement )
+		if ( !MatchElement || !MatchElement.Control )
 			return;
 		if ( this.LockedElement )
 			MatchElement.Element.Control.OnClick( MatchElement.LocalUv, false, ButtonIndex );
