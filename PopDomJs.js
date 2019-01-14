@@ -244,6 +244,8 @@ function PopDom(OnChanged,GetPixelRect)
 	this.OnMouseUp = function(x,y,ButtonIndex)
 	{
 		this.LockedElement = null;
+		//	emulate a hover with the button not-down
+		this.OnMouseMove(x,y,ButtonIndex);
 	}
 
 	this.OnMouseMove = function(x,y,ButtonIndex)
